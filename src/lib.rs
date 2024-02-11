@@ -1,6 +1,5 @@
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
-use urlencoding::encode as url_encode;
 
 const API_BASE_URL: &str = "https://www.googleapis.com/customsearch/v1";
 
@@ -21,7 +20,7 @@ struct SearchResponse {
 pub enum GSearchError {
     RequestError(reqwest::Error),
     ApiResponseError(reqwest::StatusCode),
-    JsonError(serde_json::Error),
+    JsonError(serde_json::Error), // Add JsonError variant for better error handling
 }
 
 pub struct GSearch {
@@ -36,14 +35,10 @@ impl GSearch {
             cx: cx.to_string(),
         }
     }
-
     pub fn search(&self, query: &str) -> Result<SearchResponse, GSearchError> {
         let url = format!(
             "{}?key={}&cx={}&q={}",
-            API_BASE_URL,
-            url_encode(&self.api_key),
-            url_encode(&self.cx),
-            url_encode(query)
+            API_BASE_URL, self.api_key, self.cx, query
         );
 
         let response = Client::new()
@@ -53,7 +48,8 @@ impl GSearch {
 
         if response.status().is_success() {
             let json_str = response.text().map_err(GSearchError::RequestError)?;
-            let result: SearchResponse = serde_json::from_str(&json_str)?;
+            let result: SearchResponse =
+                serde_json::from_str(&json_str).map_err(GSearchError::JsonError)?;
             Ok(result)
         } else {
             Err(GSearchError::ApiResponseError(response.status()))
