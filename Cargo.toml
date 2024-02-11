@@ -1,7 +1,14 @@
 [package]
 name = "gsearch"
 version = "0.1.0"
-edition = "2021"
+authors = ["Elias Nau <eliasnau09@gmail.com>"]
+description = "A rust crate for interacting with the Google Custom Search API"
+readme = "README.md"
+homepage = "https://github.com/eliasnau/gsearch"
+repository = "https://github.com/eliasnau/gsearch"
+keywords = ["google", "search", "google-search", "google search"]
+
+
 
 [dependencies]
 reqwest = { version = "0.11", features = ["blocking"] }
